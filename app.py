@@ -4,9 +4,11 @@ import numpy as np
 import streamlit as st
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.metrics import classification_report, accuracy_score
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
+from sklearn.model_selection import train_test_split, cross_val_score
 from joblib import dump, load
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 st.title("Anomaly Detection Predictive Model")
 
@@ -36,7 +38,7 @@ if uploaded_file is not None:
     model_path = 'models/best_model.pkl'
     if not os.path.exists('models'):
         os.makedirs('models')
-        
+
     if os.path.exists(model_path):
         # Load the trained model
         model = load(model_path)
@@ -44,7 +46,7 @@ if uploaded_file is not None:
         # Train a new model
         model = GradientBoostingClassifier(random_state=42)
         model.fit(X_train, y_train)
-        
+
         # Save the model
         dump(model, model_path)
         st.success(f"Model trained and saved to {model_path}")
@@ -59,6 +61,19 @@ if uploaded_file is not None:
     # Display classification report
     report = classification_report(y_test, y_pred, output_dict=True)
     st.write(pd.DataFrame(report).transpose())
+
+    # Confusion matrix
+    cm = confusion_matrix(y_test, y_pred)
+    st.subheader("Confusion Matrix")
+    fig, ax = plt.subplots()
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
+    st.pyplot(fig)
+
+    # Cross-validation scores
+    cv_scores = cross_val_score(model, X_scaled, y, cv=5)
+    st.subheader("Cross-Validation Scores")
+    st.write(f"Mean CV Score: {cv_scores.mean():.2f}")
+    st.write(cv_scores)
 
     # Scoring the entire dataset
     y_pred_full = model.predict(X_scaled)
