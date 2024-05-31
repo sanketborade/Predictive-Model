@@ -1,6 +1,6 @@
 Pandas == 2.1.4
 NumPy == 1.26.4
-Scikit-Learn == 1.4.2
+Sklearn == 1.4.2
 XGBoost == 2.0.3
 Streamlit == 1.30.0
 Seaborn == 0.12.2
